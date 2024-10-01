@@ -6,8 +6,11 @@ import routes from './routes/index';
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Middleware to parse request body (e.g., email) correctly.
+app.use(express.json());
+
 // Load all routes from the file routes/index.js.
-app.use('/', routes);
+app.use(routes);
 
 // Start the server.
 app.listen(port, () => {
