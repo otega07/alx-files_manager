@@ -9,6 +9,7 @@ class DBClient {
     // Collect the env variables or given defaults.
     const host = process.env.DB_HOST || 'localhost';
     const port = process.env.DB_PORT || '27017';
+    this.database = process.env.DB_DATABASE || 'files_manager';
 
     // Build the MongoDB connection URI.
     const url = `mongodb://${host}:${port}`;
@@ -25,7 +26,7 @@ class DBClient {
     try {
       // Connect to MongoDB client, then select the database.
       await this.client.connect();
-      this.db = this.client.db(process.env.DB_DATABASE || 'files_manager');
+      this.db = this.client.db(this.database);
     } catch (error) {
       console.error('Failed to connect to MongoDB:', error.message);
     }
