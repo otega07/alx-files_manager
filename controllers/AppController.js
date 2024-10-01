@@ -6,10 +6,12 @@ import dbClient from '../utils/db';
 class AppController {
   // for GET /status
   static async getStatus(req, res) {
-    const redisAlive = redisClient.isAlive();
-    const dbAlive = dbClient.isAlive();
+    if (redisClient.isAlive() && dbClient.isAlive()) {
+      const redisAlive = redisClient.isAlive();
+      const dbAlive = dbClient.isAlive();
 
-    res.status(200).json({ redis: redisAlive, db: dbAlive });
+      res.status(200).json({ redis: redisAlive, db: dbAlive });
+    }
   }
 
   // for GET /stats
