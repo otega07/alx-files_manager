@@ -44,7 +44,7 @@ class DBClient {
    */
   async nbUsers() {
     try {
-      return await this.db.collection('users').countDocuments();
+      return await this.client.db(this.database).collection('users').countDocuments();
     } catch (error) {
       console.error(error.message);
       return 0;
@@ -57,7 +57,7 @@ class DBClient {
    */
   async nbFiles() {
     try {
-      return await this.db.collection('files').countDocuments();
+      return await this.client.db(this.database).collection('files').countDocuments();
     } catch (error) {
       console.error(error.message);
       return 0;
