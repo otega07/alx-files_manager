@@ -1,6 +1,6 @@
 #!/usr/bin/node
 
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 class DBClient {
   constructor() {
@@ -58,6 +58,24 @@ class DBClient {
   async nbFiles() {
     try {
       return await this.client.db(this.database).collection('files').countDocuments();
+    } catch (error) {
+      console.error(error.message);
+      return 0;
+    }
+  }
+
+  async getUserByEmail(email, password) {
+    try {
+      return await this.client.db(this.database).collection('users').findOne({ email, password });
+    } catch (error) {
+      console.error(error.message);
+      return 0;
+    }
+  }
+
+  async getUserById(userId) {
+    try {
+      return await this.client.db(this.database).collection('users').findOne({ _id: new ObjectId(userId) });
     } catch (error) {
       console.error(error.message);
       return 0;
