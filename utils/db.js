@@ -1,10 +1,6 @@
 #!/usr/bin/node
 
 import { MongoClient } from 'mongodb';
-import dotenv from 'dotenv';
-
-// Load the environment variables.
-dotenv.config();
 
 class DBClient {
   constructor() {
@@ -30,7 +26,7 @@ class DBClient {
       await this.client.connect();
       this.db = this.client.db(this.database);
     } catch (error) {
-      console.error('Failed to connect to MongoDB:', error.message);
+      console.error(error.message);
     }
   }
 
@@ -50,7 +46,7 @@ class DBClient {
     try {
       return await this.db.collection('users').countDocuments();
     } catch (error) {
-      console.error('Failed to count users:', error.message);
+      console.error(error.message);
       return 0;
     }
   }
@@ -63,7 +59,7 @@ class DBClient {
     try {
       return await this.db.collection('files').countDocuments();
     } catch (error) {
-      console.error('Failed to count files:', error.message);
+      console.error(error.message);
       return 0;
     }
   }
@@ -71,4 +67,4 @@ class DBClient {
 
 // Create & export an instance of DBClient called dbClient.
 const dbClient = new DBClient();
-export default dbClient;
+module.exports = dbClient;
