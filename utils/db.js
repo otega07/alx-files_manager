@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 
