@@ -1,88 +1,124 @@
-#!/usr/bin/node
+#!/usr/bin/env node
 
-import { MongoClient, ObjectId } from 'mongodb';
+const { MongoClient, ObjectId } = require('mongodb');
+const envLoader = require('./env_loader');
 
+/**
+ * Represents a MongoDB client.
+ */
 class DBClient {
+  /**
+   * Creates a new DBClient instance.
+   */
   constructor() {
-    // Collect the env variables or given defaults.
+    envLoader();
     const host = process.env.DB_HOST || 'localhost';
     const port = process.env.DB_PORT || '27017';
-    this.database = process.env.DB_DATABASE || 'files_manager';
+    this.databaseName = process.env.DB_DATABASE || 'files_manager';
 
-    // Build the MongoDB connection URI.
-    const url = `mongodb://${host}:${port}`;
-    this.client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    // Set database to null for now.
+    const dbURL = `mongodb://${host}:${port}`;
+    this.client = new MongoClient(dbURL, { useNewUrlParser: true, useUnifiedTopology: true });
     this.db = null;
-
-    // Connect to MongoDB.
-    this.connect();
   }
 
+  /**
+   * Initiates connection to the MongoDB server and selects the database.
+   * Handles connection errors by logging them.
+   */
   async connect() {
     try {
-      // Connect to MongoDB client, then select the database.
       await this.client.connect();
-      this.db = this.client.db(this.database);
+      this.db = this.client.db(this.databaseName);
+      console.log('Connected to MongoDB');
     } catch (error) {
-      console.error(error.message);
+      console.error('MongoDB connection error:', error.message);
     }
   }
 
   /**
-   * Ascertains if MongoDB connection is successful/not.
+   * Checks if this client's connection to the MongoDB server is active.
    * @returns {boolean}
    */
   isAlive() {
-    return !!this.db;
+    return this.client && this.client.isConnected();
   }
 
   /**
-   * Returns no. of docs in collection users.
+   * Retrieves the number of users in the database.
    * @returns {Promise<number>}
    */
   async nbUsers() {
     try {
-      return await this.client.db(this.database).collection('users').countDocuments();
+      const collection = this.db.collection('users');
+      return await collection.countDocuments();
     } catch (error) {
-      console.error(error.message);
+      console.error('Error retrieving users count:', error.message);
       return 0;
     }
   }
 
   /**
-   * Returns no. of docs in collection files.
+   * Retrieves the number of files in the database.
    * @returns {Promise<number>}
    */
   async nbFiles() {
     try {
-      return await this.client.db(this.database).collection('files').countDocuments();
+      const collection = this.db.collection('files');
+      return await collection.countDocuments();
     } catch (error) {
-      console.error(error.message);
+      console.error('Error retrieving files count:', error.message);
       return 0;
     }
   }
 
+  /**
+   * Finds a user by email and password.
+   * @param {string} email
+   * @param {string} password
+   * @returns {Promise<object|null>}
+   */
   async getUserByEmail(email, password) {
     try {
-      return await this.client.db(this.database).collection('users').findOne({ email, password });
+      return await this.db.collection('users').findOne({ email, password });
     } catch (error) {
-      console.error(error.message);
-      return 0;
+      console.error('Error retrieving user by email:', error.message);
+      return null;
     }
   }
 
+  /**
+   * Finds a user by ID.
+   * @param {string} userId
+   * @returns {Promise<object|null>}
+   */
   async getUserById(userId) {
     try {
-      return await this.client.db(this.database).collection('users').findOne({ _id: new ObjectId(userId) });
+      return await this.db.collection('users').findOne({ _id: new ObjectId(userId) });
     } catch (error) {
-      console.error(error.message);
-      return 0;
+      console.error('Error retrieving user by ID:', error.message);
+      return null;
     }
+  }
+
+  /**
+   * Retrieves a reference to the `users` collection.
+   * @returns {Promise<Collection>}
+   */
+  async usersCollection() {
+    return this.db.collection('users');
+  }
+
+  /**
+   * Retrieves a reference to the `files` collection.
+   * @returns {Promise<Collection>}
+   */
+  async filesCollection() {
+    return this.db.collection('files');
   }
 }
 
-// Create & export an instance of DBClient called dbClient.
+// Create and connect a new DBClient instance.
 const dbClient = new DBClient();
+dbClient.connect();
+
 module.exports = dbClient;
