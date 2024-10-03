@@ -1,11 +1,11 @@
 /* eslint-disable import/no-named-as-default */
-const { writeFile } = require('fs');
-const { promisify } = require('util');
-const Queue = require('bull/lib/queue');
-const imgThumbnail = require('image-thumbnail');
-const mongoDBCore = require('mongodb/lib/core');
-const dbClient = require('./utils/db');
-const Mailer = require('./utils/mailer');
+import { writeFile } from 'fs';
+import { promisify } from 'util';
+import Queue from 'bull/lib/queue';
+import imgThumbnail from 'image-thumbnail';
+import mongoDBCore from 'mongodb/lib/core';
+import dbClient from './utils/db';
+import Mailer from './utils/mailer';
 
 const writeFileAsync = promisify(writeFile);
 const fileQueue = new Queue('thumbnail generation');
@@ -46,8 +46,7 @@ fileQueue.process(async (job, done) => {
   Promise.all(sizes.map((size) => generateThumbnail(file.localPath, size)))
     .then(() => {
       done();
-    })
-    .catch(done);
+    });
 });
 
 userQueue.process(async (job, done) => {

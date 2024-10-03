@@ -1,11 +1,11 @@
 // eslint-disable-next-line no-unused-vars
-const { Express } = require('express');
-const AppController = require('../controllers/AppController');
-const AuthController = require('../controllers/AuthController');
-const UsersController = require('../controllers/UsersController');
-const FilesController = require('../controllers/FilesController');
-const { basicAuthenticate, xTokenAuthenticate } = require('../middlewares/auth');
-const { APIError, errorResponse } = require('../middlewares/error');
+import { Express } from 'express';
+import AppController from '../controllers/AppController';
+import AuthController from '../controllers/AuthController';
+import UsersController from '../controllers/UsersController';
+import FilesController from '../controllers/FilesController';
+import { basicAuthenticate, xTokenAuthenticate } from '../middlewares/auth';
+import { APIError, errorResponse } from '../middlewares/error';
 
 /**
  * Injects routes with their handlers to the given Express application.
@@ -34,4 +34,4 @@ const injectRoutes = (api) => {
   api.use(errorResponse);
 };
 
-module.exports = injectRoutes;
+export default injectRoutes;

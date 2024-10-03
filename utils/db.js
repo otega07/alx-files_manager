@@ -1,7 +1,7 @@
-#!/usr/bin/env node
-
-const { MongoClient, ObjectId } = require('mongodb');
-const envLoader = require('./env_loader');
+import mongodb from 'mongodb';
+// eslint-disable-next-line no-unused-vars
+import Collection from 'mongodb/lib/collection';
+import envLoader from './env_loader';
 
 /**
  * Represents a MongoDB client.
@@ -13,26 +13,12 @@ class DBClient {
   constructor() {
     envLoader();
     const host = process.env.DB_HOST || 'localhost';
-    const port = process.env.DB_PORT || '27017';
-    this.databaseName = process.env.DB_DATABASE || 'files_manager';
+    const port = process.env.DB_PORT || 27017;
+    const database = process.env.DB_DATABASE || 'files_manager';
+    const dbURL = `mongodb://${host}:${port}/${database}`;
 
-    const dbURL = `mongodb://${host}:${port}`;
-    this.client = new MongoClient(dbURL, { useNewUrlParser: true, useUnifiedTopology: true });
-    this.db = null;
-  }
-
-  /**
-   * Initiates connection to the MongoDB server and selects the database.
-   * Handles connection errors by logging them.
-   */
-  async connect() {
-    try {
-      await this.client.connect();
-      this.db = this.client.db(this.databaseName);
-      console.log('Connected to MongoDB');
-    } catch (error) {
-      console.error('MongoDB connection error:', error.message);
-    }
+    this.client = new mongodb.MongoClient(dbURL, { useUnifiedTopology: true });
+    this.client.connect();
   }
 
   /**
@@ -40,64 +26,23 @@ class DBClient {
    * @returns {boolean}
    */
   isAlive() {
-    return this.client && this.client.isConnected();
+    return this.client.isConnected();
   }
 
   /**
    * Retrieves the number of users in the database.
-   * @returns {Promise<number>}
+   * @returns {Promise<Number>}
    */
   async nbUsers() {
-    try {
-      const collection = this.db.collection('users');
-      return await collection.countDocuments();
-    } catch (error) {
-      console.error('Error retrieving users count:', error.message);
-      return 0;
-    }
+    return this.client.db().collection('users').countDocuments();
   }
 
   /**
    * Retrieves the number of files in the database.
-   * @returns {Promise<number>}
+   * @returns {Promise<Number>}
    */
   async nbFiles() {
-    try {
-      const collection = this.db.collection('files');
-      return await collection.countDocuments();
-    } catch (error) {
-      console.error('Error retrieving files count:', error.message);
-      return 0;
-    }
-  }
-
-  /**
-   * Finds a user by email and password.
-   * @param {string} email
-   * @param {string} password
-   * @returns {Promise<object|null>}
-   */
-  async getUserByEmail(email, password) {
-    try {
-      return await this.db.collection('users').findOne({ email, password });
-    } catch (error) {
-      console.error('Error retrieving user by email:', error.message);
-      return null;
-    }
-  }
-
-  /**
-   * Finds a user by ID.
-   * @param {string} userId
-   * @returns {Promise<object|null>}
-   */
-  async getUserById(userId) {
-    try {
-      return await this.db.collection('users').findOne({ _id: new ObjectId(userId) });
-    } catch (error) {
-      console.error('Error retrieving user by ID:', error.message);
-      return null;
-    }
+    return this.client.db().collection('files').countDocuments();
   }
 
   /**
@@ -105,7 +50,7 @@ class DBClient {
    * @returns {Promise<Collection>}
    */
   async usersCollection() {
-    return this.db.collection('users');
+    return this.client.db().collection('users');
   }
 
   /**
@@ -113,12 +58,9 @@ class DBClient {
    * @returns {Promise<Collection>}
    */
   async filesCollection() {
-    return this.db.collection('files');
+    return this.client.db().collection('files');
   }
 }
 
-// Create and connect a new DBClient instance.
-const dbClient = new DBClient();
-dbClient.connect();
-
-module.exports = dbClient;
+export const dbClient = new DBClient();
+export default dbClient;

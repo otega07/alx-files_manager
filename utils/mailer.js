@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
-const fs = require('fs');
-const readline = require('readline');
-const { promisify } = require('util');
-const mimeMessage = require('mime-message');
-const { google } = require('googleapis');
+import fs from 'fs';
+import readline from 'readline';
+import { promisify } from 'util';
+import mimeMessage from 'mime-message';
+import { gmail_v1 as gmailV1, google } from 'googleapis';
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/gmail.send'];
@@ -96,7 +96,7 @@ function sendMailService(auth, mail) {
 /**
  * Contains routines for mail delivery with GMail.
  */
-class Mailer {
+export default class Mailer {
   static checkAuth() {
     readFileAsync('credentials.json')
       .then(async (content) => {
@@ -149,5 +149,3 @@ class Mailer {
       });
   }
 }
-
-module.exports = Mailer;
