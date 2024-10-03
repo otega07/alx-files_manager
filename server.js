@@ -1,18 +1,12 @@
-#!/usr/bin/node
-
 import express from 'express';
-import routes from './routes/index';
+import startServer from './libs/boot';
+import injectRoutes from './routes';
+import injectMiddlewares from './libs/middlewares';
 
-const app = express();
-const port = process.env.PORT || 5000;
+const server = express();
 
-// Middleware to parse request body (e.g., email) correctly.
-app.use(express.json());
+injectMiddlewares(server);
+injectRoutes(server);
+startServer(server);
 
-// Load all routes from the file routes/index.js.
-app.use(routes);
-
-// Start the server.
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+export default server;
